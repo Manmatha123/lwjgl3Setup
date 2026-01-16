@@ -1,0 +1,18 @@
+#version 330 core
+
+layout (location = 0) in vec3 pos;
+layout (location = 3) in ivec4 boneIds;
+layout (location = 4) in vec4 weights;
+
+uniform mat4 bones[100];
+uniform mat4 MVP;
+
+void main() {
+    mat4 skin =
+        weights.x * bones[boneIds.x] +
+        weights.y * bones[boneIds.y] +
+        weights.z * bones[boneIds.z] +
+        weights.w * bones[boneIds.w];
+
+    gl_Position = MVP * skin * vec4(pos, 1.0);
+}

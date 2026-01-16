@@ -4,7 +4,13 @@ import models.RawModel;
 
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
+
+import fbx.VertexBoneData;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -43,6 +49,111 @@ public class Loader {
         storeDataInAttributeList(0, dimensions, positions);
         unbindVAO();
         return new RawModel(vaoID, positions.length / dimensions);
+    }
+
+
+    public RawModel loadAnimatedVAO(
+            float[] positions,
+            float[] texCoords,
+            float[] normals,
+            int[] indices,
+            List<VertexBoneData> boneData
+    ) {
+
+        int vaoID = GL30.glGenVertexArrays();
+        GL30.glBindVertexArray(vaoID);
+
+        // ---------- Indices ----------
+        int ebo = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
+
+        IntBuffer indexBuffer = BufferUtils.createIntBuffer(indices.length);
+        indexBuffer.put(indices).flip();
+
+        GL15.glBufferData(
+                GL15.GL_ELEMENT_ARRAY_BUFFER,
+                indexBuffer,
+                GL15.GL_STATIC_DRAW
+        );
+
+        // ---------- Position ----------
+        storeFloatAttribute(0, 3, positions);
+
+        // ---------- TexCoords ----------
+        storeFloatAttribute(1, 2, texCoords);
+
+        // ---------- Normals ----------
+        storeFloatAttribute(2, 3, normals);
+
+        // ---------- Bone data ----------
+        int vertexCount = boneData.size();
+
+        int[] boneIds = new int[vertexCount * 4];
+        float[] weights = new float[vertexCount * 4];
+
+        for (int i = 0; i < vertexCount; i++) {
+            VertexBoneData v = boneData.get(i);
+            for (int j = 0; j < 4; j++) {
+                boneIds[i * 4 + j] = v.boneIds[j];
+                weights[i * 4 + j] = v.weights[j];
+            }
+        }
+
+        storeIntAttribute(3, 4, boneIds);   // ivec4
+        storeFloatAttribute(4, 4, weights); // vec4
+
+        // ---------- Cleanup ----------
+        GL30.glBindVertexArray(0);
+
+        return new RawModel(vaoID, indices.length);
+    }
+
+     private void storeFloatAttribute(int location, int size, float[] data) {
+        int vbo = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
+
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
+        buffer.put(data).flip();
+
+        GL15.glBufferData(
+                GL15.GL_ARRAY_BUFFER,
+                buffer,
+                GL15.GL_STATIC_DRAW
+        );
+
+        GL20.glVertexAttribPointer(
+                location,
+                size,
+                GL11.GL_FLOAT,
+                false,
+                0,
+                0
+        );
+        GL20.glEnableVertexAttribArray(location);
+    }
+
+    // IMPORTANT: integer attribute
+    private void storeIntAttribute(int location, int size, int[] data) {
+        int vbo = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
+
+        IntBuffer buffer = BufferUtils.createIntBuffer(data.length);
+        buffer.put(data).flip();
+
+        GL15.glBufferData(
+                GL15.GL_ARRAY_BUFFER,
+                buffer,
+                GL15.GL_STATIC_DRAW
+        );
+
+        GL30.glVertexAttribIPointer(
+                location,
+                size,
+                GL11.GL_INT,
+                0,
+                0
+        );
+        GL20.glEnableVertexAttribArray(location);
     }
 
     /* ================= TEXTURE ================= */
