@@ -1,18 +1,32 @@
 #version 330 core
 
-layout (location = 0) in vec3 pos;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec2 texCoord;
+layout (location = 2) in vec3 normal;
 layout (location = 3) in ivec4 boneIds;
 layout (location = 4) in vec4 weights;
 
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
+
 uniform mat4 bones[100];
-uniform mat4 MVP;
+
+out vec2 passTexCoord;
+out vec3 passNormal;
 
 void main() {
-    mat4 skin =
-        weights.x * bones[boneIds.x] +
-        weights.y * bones[boneIds.y] +
-        weights.z * bones[boneIds.z] +
-        weights.w * bones[boneIds.w];
 
-    gl_Position = MVP * skin * vec4(pos, 1.0);
+    mat4 skin =
+          bones[boneIds.x] * weights.x +
+          bones[boneIds.y] * weights.y +
+          bones[boneIds.z] * weights.z +
+          bones[boneIds.w] * weights.w;
+
+    vec4 skinnedPos = skin * vec4(position, 1.0);
+
+    gl_Position = projection * view * model * skinnedPos;
+
+    passTexCoord = texCoord;
+    passNormal = mat3(model) * normal;
 }

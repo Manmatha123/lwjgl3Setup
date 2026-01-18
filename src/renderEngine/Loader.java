@@ -10,7 +10,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
-import fbx.VertexBoneData;
+
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -52,61 +52,46 @@ public class Loader {
     }
 
 
-    public RawModel loadAnimatedVAO(
-            float[] positions,
-            float[] texCoords,
-            float[] normals,
-            int[] indices,
-            List<VertexBoneData> boneData
-    ) {
+  public RawModel loadAnimatedVAO(
+    List<Vector3f>vertices,
+        float[] positions,
+        float[] texCoords,
+        float[] normals,
+        int[] indices,
+        int[] boneIds,
+        float[] weights
+) {
+    int vaoID = GL30.glGenVertexArrays();
+    GL30.glBindVertexArray(vaoID);
 
-        int vaoID = GL30.glGenVertexArrays();
-        GL30.glBindVertexArray(vaoID);
+    // ---------- Indices (EBO) ----------
+    int ebo = GL15.glGenBuffers();
+    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
 
-        // ---------- Indices ----------
-        int ebo = GL15.glGenBuffers();
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
+    IntBuffer indexBuffer = BufferUtils.createIntBuffer(indices.length);
+    indexBuffer.put(indices).flip();
 
-        IntBuffer indexBuffer = BufferUtils.createIntBuffer(indices.length);
-        indexBuffer.put(indices).flip();
+    GL15.glBufferData(
+            GL15.GL_ELEMENT_ARRAY_BUFFER,
+            indexBuffer,
+            GL15.GL_STATIC_DRAW
+    );
 
-        GL15.glBufferData(
-                GL15.GL_ELEMENT_ARRAY_BUFFER,
-                indexBuffer,
-                GL15.GL_STATIC_DRAW
-        );
+    // ---------- Vertex Attributes ----------
+    storeFloatAttribute(0, 3, positions); // position
+    storeFloatAttribute(1, 2, texCoords); // texCoords
+    storeFloatAttribute(2, 3, normals);   // normals
 
-        // ---------- Position ----------
-        storeFloatAttribute(0, 3, positions);
 
-        // ---------- TexCoords ----------
-        storeFloatAttribute(1, 2, texCoords);
+    storeIntAttribute(3, 4, boneIds);     // ivec4 bone IDs
+    storeFloatAttribute(4, 4, weights);   // vec4 weights
 
-        // ---------- Normals ----------
-        storeFloatAttribute(2, 3, normals);
+    // ---------- Unbind ----------
+    GL30.glBindVertexArray(0);
 
-        // ---------- Bone data ----------
-        int vertexCount = boneData.size();
+    return new RawModel(vaoID, indices.length,vertices);
+}
 
-        int[] boneIds = new int[vertexCount * 4];
-        float[] weights = new float[vertexCount * 4];
-
-        for (int i = 0; i < vertexCount; i++) {
-            VertexBoneData v = boneData.get(i);
-            for (int j = 0; j < 4; j++) {
-                boneIds[i * 4 + j] = v.boneIds[j];
-                weights[i * 4 + j] = v.weights[j];
-            }
-        }
-
-        storeIntAttribute(3, 4, boneIds);   // ivec4
-        storeFloatAttribute(4, 4, weights); // vec4
-
-        // ---------- Cleanup ----------
-        GL30.glBindVertexArray(0);
-
-        return new RawModel(vaoID, indices.length);
-    }
 
      private void storeFloatAttribute(int location, int size, float[] data) {
         int vbo = GL15.glGenBuffers();

@@ -1,9 +1,16 @@
 package gameEngine;
 
+import java.sql.Time;
 import java.util.List;
 
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import FBX3.AnimatedModel;
+import FBX3.AnimatedRenderer;
+import FBX3.Animator;
+import FBX3.AssimpLoader;
+import FBX3.FBXResult;
 import entities.Camera;
 import entities.ControlObject_Test;
 import entities.Entity;
@@ -23,6 +30,10 @@ public class GameLoop {
     private Camera camera;
     private MasterRenderer renderer;
     private ControlObject_Test treeEntity;
+ private ModelTexture textureAero;
+    public Animator animator;
+    public FBXResult spiderModel;
+
       Light light;
 
     public void start() {
@@ -42,8 +53,12 @@ light = new Light(new Vector3f(0,0,0), new Vector3f(0,0,0), new Vector3f(1.0f, 0
         List<RawModel> model =objLoader.loadObjModel(
                 "E:\\lwjgl\\LWJGL3\\project1\\res\\ball.obj", loader);
 
-        ModelTexture texture = new ModelTexture(loader.loadTexture("res/ball.png"));
-        TextureModel texturedModel = new TextureModel(model.get(0), texture, "tree");
+
+        spiderModel=AssimpLoader.load("E:\\lwjgl\\LWJGL3\\project1\\res\\FuturisticCombatJet.fbx", loader);
+        animator=new Animator(spiderModel.animation);
+         ModelTexture texture = new ModelTexture(loader.loadTexture("res/ball.png"));
+          textureAero = new ModelTexture(loader.loadTexture("res/AircraftC.jpg"));
+         TextureModel texturedModel = new TextureModel(model.get(0), texture, "tree");
 
         treeEntity = new ControlObject_Test(
                 texturedModel,
@@ -57,19 +72,35 @@ light = new Light(new Vector3f(0,0,0), new Vector3f(0,0,0), new Vector3f(1.0f, 0
 
     private void loop() {
 
+        AnimatedModel model = spiderModel.model;
+        AnimatedRenderer renderer = new AnimatedRenderer();
+
         while (!window.shouldClose()) {
 
         window.clear();
 
         float delta = window.getDeltaTime();
 
+     animator.update(delta, model);
+
+
         // Update camera or entity if needed
         camera.move();
 
+    renderer.render(
+            model,
+            camera,
+            textureAero,
+            new Matrix4f().identity()
+    );
+
+    //         animator.update(delta, spiderModel.model);
+    // renderer.render(spiderModel.model);
+
         // Render the single entity
-        renderer.processEntity(treeEntity);  // Add entity to render queue
+        // renderer.processEntity(treeEntity);  // Add entity to render queue
         // renderer.renderRaw();                   // Render all processed entities
-        renderer.render(light,camera);                   // Render all processed entities
+        // renderer.render(light,camera);                   // Render all processed entities
         // renderer.clear();                    // Clear queue for next frame
 
         // Swap buffers
