@@ -145,6 +145,7 @@ public class AssimpLoader {
         AIAnimation aiAnim = AIAnimation.create(scene.mAnimations().get(0));
 
         Animation animation = new Animation();
+        
         animation.duration = (float) aiAnim.mDuration();
         animation.ticksPerSecond = aiAnim.mTicksPerSecond() != 0
                 ? (float) aiAnim.mTicksPerSecond()
