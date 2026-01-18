@@ -145,7 +145,7 @@ public class AssimpLoader {
         AIAnimation aiAnim = AIAnimation.create(scene.mAnimations().get(0));
 
         Animation animation = new Animation();
-        
+
         animation.duration = (float) aiAnim.mDuration();
         animation.ticksPerSecond = aiAnim.mTicksPerSecond() != 0
                 ? (float) aiAnim.mTicksPerSecond()
@@ -209,7 +209,7 @@ public class AssimpLoader {
             var key = channel.mScalingKeys().get(i);
             list.add(new VectorKey(
                     (float) key.mTime(),
-                    new Vector3f(key.mValue().x()+0.5f, key.mValue().y()+0.5f, key.mValue().z()+0.5f)));
+                    new Vector3f(key.mValue().x(), key.mValue().y()-3f, key.mValue().z())));
         }
         return list;
     }

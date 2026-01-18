@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
 import FBX3.AnimatedModel;
 import FBX3.AnimatedRenderer;
@@ -30,11 +32,11 @@ public class GameLoop {
     private Camera camera;
     private MasterRenderer renderer;
     private ControlObject_Test treeEntity;
- private ModelTexture textureAero;
+    private ModelTexture textureAero;
     public Animator animator;
     public FBXResult spiderModel;
 
-      Light light;
+    Light light;
 
     public void start() {
         window = new WindowManager(2080, 1080, "LWJGL 3 Engine");
@@ -48,27 +50,29 @@ public class GameLoop {
     private void init() {
         // 1️⃣ Initialize loader
         loader = new Loader();
-light = new Light(new Vector3f(0,0,0), new Vector3f(0,0,0), new Vector3f(1.0f, 0.99f, 0.88f), 1.0f, 0.2f, 100000f, 0.0f, 0.0f);
+        light = new Light(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1.0f, 0.99f, 0.88f), 1.0f, 0.2f,
+                100000f, 0.0f, 0.0f);
         // 2️⃣ Load a single OBJ model
-        List<RawModel> model =objLoader.loadObjModel(
+        List<RawModel> model = objLoader.loadObjModel(
                 "E:\\lwjgl\\LWJGL3\\project1\\res\\ball.obj", loader);
 
-
-        spiderModel=AssimpLoader.load("E:\\lwjgl\\LWJGL3\\project1\\res\\FuturisticCombatJet.fbx", loader);
-        animator=new Animator(spiderModel.animation);
-         ModelTexture texture = new ModelTexture(loader.loadTexture("res/ball.png"));
-          textureAero = new ModelTexture(loader.loadTexture("res/AircraftC.jpg"));
-         TextureModel texturedModel = new TextureModel(model.get(0), texture, "tree");
+        spiderModel = AssimpLoader.load("E:\\lwjgl\\LWJGL3\\project1\\res\\FuturisticCombatJet.fbx", loader);
+        animator = new Animator(spiderModel.animation);
+        ModelTexture texture = new ModelTexture(loader.loadTexture("res/ball.png"));
+        textureAero = new ModelTexture(loader.loadTexture("res/AircraftC.jpg"));
+        TextureModel texturedModel = new TextureModel(model.get(0), texture, "tree");
 
         treeEntity = new ControlObject_Test(
                 texturedModel,
                 new Vector3f(0, 0, 0), // Position
                 0, 0, 0, // Rotation
-                new Vector3f(6,6,6) 
-        );
+                new Vector3f(6, 6, 6));
         camera = new Camera(treeEntity);
-        renderer = new MasterRenderer(loader,2080, 1080);
+        renderer = new MasterRenderer(loader, 2080, 1080);
     }
+
+    float zVal = 0.0f;
+    float rotationY = 0.0f;
 
     private void loop() {
 
@@ -77,34 +81,48 @@ light = new Light(new Vector3f(0,0,0), new Vector3f(0,0,0), new Vector3f(1.0f, 0
 
         while (!window.shouldClose()) {
 
-        window.clear();
+            window.clear();
 
-        float delta = window.getDeltaTime();
+            float delta = window.getDeltaTime();
 
-     animator.update(delta, model);
+            animator.update(delta, model);
 
+            if (GLFW.glfwGetKey(window.getWindowId(), GLFW.GLFW_KEY_UP) == GLFW.GLFW_PRESS) {
+                zVal += 1f;
+            }
+            if (GLFW.glfwGetKey(window.getWindowId(), GLFW.GLFW_KEY_DOWN) == GLFW.GLFW_PRESS) {
+                zVal -= 1f;
+            }
+            if (GLFW.glfwGetKey(window.getWindowId(), GLFW.GLFW_KEY_LEFT) == GLFW.GLFW_PRESS) {
+                rotationY += 20 * delta;
+            }
 
-        // Update camera or entity if needed
-        camera.move();
+            if (GLFW.glfwGetKey(window.getWindowId(), GLFW.GLFW_KEY_RIGHT) == GLFW.GLFW_PRESS) {
+                rotationY -= 20 * delta;
+            }
 
-    renderer.render(
-            model,
-            camera,
-            textureAero,
-            new Matrix4f().identity()
-    );
+            // Update camera or entity if needed
+            camera.move();
 
-    //         animator.update(delta, spiderModel.model);
-    // renderer.render(spiderModel.model);
+            renderer.render(
+                    model,
+                    camera,
+                    textureAero,
+                    new Matrix4f().identity().translate(0, 0, zVal)
+                    .rotateY((float)Math.toRadians(rotationY))
+                );
 
-        // Render the single entity
-        // renderer.processEntity(treeEntity);  // Add entity to render queue
-        // renderer.renderRaw();                   // Render all processed entities
-        // renderer.render(light,camera);                   // Render all processed entities
-        // renderer.clear();                    // Clear queue for next frame
+            // animator.update(delta, spiderModel.model);
+            // renderer.render(spiderModel.model);
 
-        // Swap buffers
-        window.update();
+            // Render the single entity
+            // renderer.processEntity(treeEntity); // Add entity to render queue
+            // renderer.renderRaw(); // Render all processed entities
+            // renderer.render(light,camera); // Render all processed entities
+            // renderer.clear(); // Clear queue for next frame
+
+            // Swap buffers
+            window.update();
         }
     }
 
