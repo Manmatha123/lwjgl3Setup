@@ -74,6 +74,11 @@ public abstract class ShaderProgram {
         GL20.glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
     }
 
+    // Internal helper for vec2 uniforms
+protected void loadVector(int location, float x, float y) {
+    org.lwjgl.opengl.GL20.glUniform2f(location, x, y);
+}
+
     protected void loadVector(int location, Vector3f vector){
         GL20.glUniform3f(location,vector.x,vector.y,vector.z);
     }

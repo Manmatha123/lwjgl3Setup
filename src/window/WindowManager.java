@@ -47,7 +47,7 @@ public class WindowManager {
         GL.createCapabilities();
 
         glEnable(GL_DEPTH_TEST);
-        glClearColor(0.5f, 0.7f, 1.0f, 1.0f);
+        glClearColor(0,0,0, 1.0f);
 
         lastFrameTime = getTime();
     }

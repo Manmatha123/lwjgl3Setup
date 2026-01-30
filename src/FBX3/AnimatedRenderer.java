@@ -23,6 +23,11 @@ public class AnimatedRenderer {
     public static final float FOV = 70f;
     public static final float NEAR_PLANE = 0.1f;
     public static final float FAR_PLANE = 100000f;
+    public Matrix4f projectionMatrix;
+
+    public Matrix4f getProjectionMatrix(){
+        return projectionMatrix;
+    }
 
     public AnimatedRenderer() {
         try {
@@ -39,10 +44,10 @@ public class AnimatedRenderer {
                        Matrix4f modelMatrix) {
 
         shader.start();
-        Matrix4f projection=createProjectionMatrix(2080, 1080);
+        projectionMatrix=createProjectionMatrix(2080, 1080);
         shader.loadModelMarix(modelMatrix);
         shader.loadViewMatrix(camera);
-        shader.loadProjectionMatrix(projection);
+        shader.loadProjectionMatrix(projectionMatrix);
 
         // 🔴 upload bone matrices
         for (int i = 0; i < model.boneCount; i++) {

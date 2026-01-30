@@ -1,0 +1,21 @@
+#version 330 core
+
+in vec3 worldPos;
+out vec4 out_Color;
+
+uniform vec3 color;
+uniform float dashSize;   // length of dash
+uniform float gapSize;    // length of gap
+
+void main() {
+
+    float total = dashSize + gapSize;
+    float dist  = length(worldPos);
+
+    // Create dash pattern
+    if (mod(dist, total) > dashSize) {
+        discard;
+    }
+
+    out_Color = vec4(color, 1.0);
+}

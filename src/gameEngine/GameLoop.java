@@ -22,6 +22,9 @@ import models.TextureModel;
 import renderEngine.Loader;
 import renderEngine.MasterRenderer;
 import renderEngine.objLoader;
+import stripLine.AABB;
+import stripLine.DebugAABBRenderer;
+import stripLine.dashPath.DashedPathRenderer;
 import textures.ModelTexture;
 import window.WindowManager;
 
@@ -36,7 +39,29 @@ public class GameLoop {
     public Animator animator;
     public FBXResult spiderModel;
 
+    private DebugAABBRenderer debugAABBRenderer;
+
     Light light;
+AABB testAABB = new AABB(
+    new Vector3f(-50, 25, -1),
+    new Vector3f(50, -25, 1)
+);
+
+List<Vector3f> path = List.of(
+
+    // Z forward
+    new Vector3f(0, 0, 0),
+    new Vector3f(0, 0, 20),
+
+    // Turn → X right
+    new Vector3f(5, 0, 20),
+    new Vector3f(20, 0, 20)
+
+);
+
+DashedPathRenderer pathRenderer ;
+
+
 
     public void start() {
         window = new WindowManager(2080, 1080, "LWJGL 3 Engine");
@@ -44,6 +69,7 @@ public class GameLoop {
 
         init();
         loop();
+        
         cleanup();
     }
 
@@ -52,6 +78,8 @@ public class GameLoop {
         loader = new Loader();
         light = new Light(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1.0f, 0.99f, 0.88f), 1.0f, 0.2f,
                 100000f, 0.0f, 0.0f);
+
+                pathRenderer = new DashedPathRenderer(path);
         // 2️⃣ Load a single OBJ model
         List<RawModel> model = objLoader.loadObjModel(
                 "E:\\lwjgl\\LWJGL3\\project1\\res\\ball.obj", loader);
@@ -61,6 +89,9 @@ public class GameLoop {
         ModelTexture texture = new ModelTexture(loader.loadTexture("res/ball.png"));
         textureAero = new ModelTexture(loader.loadTexture("res/AircraftC.jpg"));
         TextureModel texturedModel = new TextureModel(model.get(0), texture, "tree");
+
+        debugAABBRenderer = new DebugAABBRenderer();
+
 
         treeEntity = new ControlObject_Test(
                 texturedModel,
@@ -112,16 +143,9 @@ public class GameLoop {
                     .rotateY((float)Math.toRadians(rotationY))
                 );
 
-            // animator.update(delta, spiderModel.model);
-            // renderer.render(spiderModel.model);
-
-            // Render the single entity
-            // renderer.processEntity(treeEntity); // Add entity to render queue
-            // renderer.renderRaw(); // Render all processed entities
-            // renderer.render(light,camera); // Render all processed entities
-            // renderer.clear(); // Clear queue for next frame
-
-            // Swap buffers
+                // debugAABBRenderer.render(testAABB, camera);
+                pathRenderer.render( renderer.getProjectionMatrix(),camera);
+         
             window.update();
         }
     }
