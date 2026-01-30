@@ -55,7 +55,7 @@ List<Vector3f> path = List.of(
 
     // Turn → X right
     new Vector3f(5, 0, 20),
-    new Vector3f(20, 0, 20)
+    new Vector3f(200, 0, 0)
 
 );
 

@@ -55,7 +55,7 @@ public class DashedPathRenderer {
         shader.loadViewMatrix(camera);;
 
         shader.loadColor(new Vector3f(1, 0, 0));
-        shader.loadDash(0.3f, 0.3f);
+        shader.loadDash(1f, 1f);
 glLineWidth(5.0f);
         glBindVertexArray(vao);
         glDrawArrays(GL_LINE_STRIP, 0, vertexCount);
