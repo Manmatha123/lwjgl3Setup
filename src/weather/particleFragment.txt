@@ -1,0 +1,19 @@
+#version 330 core
+in vec2 uv;
+out vec4 fragColor;
+
+uniform sampler2D particleTexture;
+
+void main() {
+
+    vec2 flippedUV = vec2(uv.x, 1.0 - uv.y);
+    vec4 tex = texture(particleTexture, flippedUV);
+    
+float edgeFade = smoothstep(1.0, 0.0, length(flippedUV - 0.5) * 2.5);
+tex.a *= edgeFade;
+
+
+    if (tex.a < 0.1) discard;
+
+    fragColor = tex;
+}

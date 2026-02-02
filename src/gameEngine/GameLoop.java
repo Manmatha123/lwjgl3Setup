@@ -26,6 +26,9 @@ import stripLine.AABB;
 import stripLine.DebugAABBRenderer;
 import stripLine.dashPath.DashedPathRenderer;
 import textures.ModelTexture;
+import weather.ParticleMaster;
+import weather.ParticleTexture;
+import weather.RainEmitter;
 import window.WindowManager;
 
 public class GameLoop {
@@ -41,6 +44,8 @@ public class GameLoop {
 
     private DebugAABBRenderer debugAABBRenderer;
 
+    private ParticleTexture rainTex;
+
     Light light;
 AABB testAABB = new AABB(
     new Vector3f(-50, 25, -1),
@@ -55,7 +60,7 @@ List<Vector3f> path = List.of(
 
     // Turn → X right
     new Vector3f(5, 0, 20),
-    new Vector3f(200, 0, 0)
+    new Vector3f(-200, 0, 0)
 
 );
 
@@ -100,6 +105,15 @@ DashedPathRenderer pathRenderer ;
                 new Vector3f(6, 6, 6));
         camera = new Camera(treeEntity);
         renderer = new MasterRenderer(loader, 2080, 1080);
+
+        ParticleMaster.init(loader, renderer.getProjectionMatrix());
+
+ rainTex = new ParticleTexture(loader.loadTexture("res/rain.png"), 1);
+
+
+// GAME LOOP
+
+
     }
 
     float zVal = 0.0f;
@@ -146,6 +160,10 @@ DashedPathRenderer pathRenderer ;
                 // debugAABBRenderer.render(testAABB, camera);
                 pathRenderer.render( renderer.getProjectionMatrix(),camera);
          
+                RainEmitter.emit(camera, rainTex);
+ParticleMaster.update(camera);
+ParticleMaster.render(camera);
+
             window.update();
         }
     }

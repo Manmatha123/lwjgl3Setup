@@ -14,7 +14,7 @@ public class WindowManager {
     private String title;
 
     private float lastFrameTime;
-    private float delta;
+    private static float delta;
 
     public WindowManager(int width, int height, String title) {
         this.width = width;
@@ -69,7 +69,7 @@ public class WindowManager {
         return glfwWindowShouldClose(windowId);
     }
 
-    public float getDeltaTime() {
+    public  static float getDeltaTime() {
         return delta;
     }
 
