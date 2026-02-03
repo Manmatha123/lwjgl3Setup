@@ -29,6 +29,8 @@ import textures.ModelTexture;
 import weather.ParticleMaster;
 import weather.ParticleTexture;
 import weather.RainEmitter;
+import weather.SnowEmitter;
+import weather.WeatherSystem;
 import window.WindowManager;
 
 public class GameLoop {
@@ -45,6 +47,7 @@ public class GameLoop {
     private DebugAABBRenderer debugAABBRenderer;
 
     private ParticleTexture rainTex;
+    private ParticleTexture snowTex;
 
     Light light;
 AABB testAABB = new AABB(
@@ -109,6 +112,7 @@ DashedPathRenderer pathRenderer ;
         ParticleMaster.init(loader, renderer.getProjectionMatrix());
 
  rainTex = new ParticleTexture(loader.loadTexture("res/rain.png"), 1);
+ snowTex = new ParticleTexture(loader.loadTexture("res/snow.png"), 1);
 
 
 // GAME LOOP
@@ -146,6 +150,13 @@ DashedPathRenderer pathRenderer ;
                 rotationY -= 20 * delta;
             }
 
+           if (GLFW.glfwGetKey(window.getWindowId(), GLFW.GLFW_KEY_R) == GLFW.GLFW_PRESS) {
+                WeatherSystem.isRainActive=true;
+            }
+            if (GLFW.glfwGetKey(window.getWindowId(), GLFW.GLFW_KEY_S) == GLFW.GLFW_PRESS) {
+                WeatherSystem.isRainActive=false;
+            }
+
             // Update camera or entity if needed
             camera.move();
 
@@ -160,7 +171,11 @@ DashedPathRenderer pathRenderer ;
                 // debugAABBRenderer.render(testAABB, camera);
                 pathRenderer.render( renderer.getProjectionMatrix(),camera);
          
-                RainEmitter.emit(camera, rainTex);
+                if(WeatherSystem.isRainActive){
+                    RainEmitter.emit(camera, rainTex);
+                }else{
+                    SnowEmitter.emit(camera, snowTex);
+                }
 ParticleMaster.update(camera);
 ParticleMaster.render(camera);
 

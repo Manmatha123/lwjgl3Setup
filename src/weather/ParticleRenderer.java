@@ -46,7 +46,7 @@ public class ParticleRenderer {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getTextureID());
 
             for (Particle p : particles.get(texture)) {
-                updateModelViewMatrix(p.getPosition(), p.getScale(), viewMatrix);
+                updateModelViewMatrix(p.getPosition(), p.getScale(), viewMatrix,WeatherSystem.isRainActive);
                 GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
             }
         }
@@ -54,21 +54,26 @@ public class ParticleRenderer {
         finish();
     }
 
-    private void updateModelViewMatrix(Vector3f pos, float scale,
-                                       Matrix4f viewMatrix) {
-
-                                        float stretch = 6.0f; // BASE
 
 
+private void updateModelViewMatrix(Vector3f pos,
+                                   float scale,
+                                   Matrix4f viewMatrix,
+                                   boolean stretch) {
 
     Matrix4f model = new Matrix4f()
-            .translate(pos)
-            // Stretch in Y → motion blur illusion
-            .scale(scale * 0.6f, scale * stretch, scale);
+            .translate(pos);
 
-        Matrix4f modelView = new Matrix4f(viewMatrix).mul(model);
-        shader.loadModelViewMatrix(modelView);
+    if (stretch) {
+        model.scale(scale * 0.6f, scale * 6.0f, scale); // rain
+    } else {
+        model.scale(scale); // snow
     }
+
+    Matrix4f modelView = new Matrix4f(viewMatrix).mul(model);
+    shader.loadModelViewMatrix(modelView);
+}
+
 
     private void prepare() {
         shader.start();

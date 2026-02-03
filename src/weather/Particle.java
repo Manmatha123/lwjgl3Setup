@@ -42,6 +42,13 @@ public class Particle {
         float dt =WindowManager.getDeltaTime();
 
         velocity.y += gravity * dt;
+
+        if(!WeatherSystem.isRainActive){
+velocity.x += Math.sin(elapsedTime * 2.0f) * 0.02f;
+velocity.z += Math.cos(elapsedTime * 2.0f) * 0.02f;
+
+        }
+
         position.add(new Vector3f(velocity).mul(dt));
 
         distance = new Vector3f(camera.getPosition())
