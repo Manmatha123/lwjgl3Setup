@@ -1,9 +1,7 @@
 {
   "build": "release",
   "mode": "zip",
-  "selectedAddons": [
-    "lwjgl3-awt"
-  ],
+  "selectedAddons": [],
   "platform": [
     "windows"
   ],
@@ -19,9 +17,7 @@
     "lwjgl",
     "lwjgl-jawt",
     "lwjgl-yoga",
-    "lwjgl-zstd",
-    "lwjgl-opengl",
-    "lwjgl-opengles"
+    "lwjgl-zstd"
   ],
   "version": "3.3.6",
   "versionLatest": "3.4.1"
