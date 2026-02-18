@@ -16,6 +16,7 @@ import renderEngine.objLoader;
 import stripLine.DebugAABBRenderer;
 import stripLine.dashPath.DashedPathRenderer;
 import textures.ModelTexture;
+import toolbox.Maths;
 import weather.*;
 
 public class GameLoop {
@@ -116,13 +117,13 @@ public class GameLoop {
     }
 
     // ================= FRAME =================
-
+float i=0;
     public void updateAndRender() {
 
         if(!isInitialize){
                 init();
         }
-        float delta = 0.016f;
+        float delta =0.02f;
 
         AnimatedModel model = spiderModel.model;
         animator.update(delta, model);
@@ -130,20 +131,29 @@ public class GameLoop {
         handleInput(delta);
         camera.move();
 
+        rotationY+=1f;
+        System.out.println("Rot: "+rotationY);
+
+        Matrix4f staticModelMatrix =
+    Maths.createTransformationMatrix(
+        new Vector3f(0, 0, 20),  // world position
+        0, rotationY, 0,
+        1
+    );
+
+
+
         animatedRenderer.render(
                 model,
                 camera,
                 textureAero,
-                new Matrix4f()
-                        .identity()
-                        .translate(0,0,zVal)
-                        .rotateY((float)Math.toRadians(rotationY))
+             staticModelMatrix
         );
 
-        pathRenderer.render(
-                renderer.getProjectionMatrix(),
-                camera
-        );
+        // pathRenderer.render(
+        //         renderer.getProjectionMatrix(),
+        //         camera
+        // );
 
         if(WeatherSystem.isRainActive)
             RainEmitter.emit(camera, rainTex);
@@ -164,11 +174,16 @@ public class GameLoop {
         if(Input.isDown(KeyEvent.VK_DOWN))
             zVal -= 20f * delta;
 
-        if(Input.isDown(KeyEvent.VK_LEFT))
-            rotationY += 60f * delta;
+        // if(Input.isDown(KeyEvent.VK_LEFT)){
+        //     rotationY +=10;
+        //     System.out.println("Left clicked:"+rotationY);
+        // }
 
-        if(Input.isDown(KeyEvent.VK_RIGHT))
-            rotationY -= 60f * delta;
+
+        // if(Input.isDown(KeyEvent.VK_RIGHT)){
+                
+        // }
+        //     rotationY -= 10;
 
         if(Input.isDown(KeyEvent.VK_R))
             WeatherSystem.isRainActive = true;

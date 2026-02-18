@@ -54,7 +54,7 @@ config.destroy();
         imGuiGlfw.init(window.getWindowId(), true);
         imGuiGl3.init("#version 330 core");
 
-        DroneHUD hud = new DroneHUD();
+        // DroneHUD hud = new DroneHUD();
 
         game.init(); // initialize once
 
@@ -64,13 +64,13 @@ config.destroy();
 
             game.updateAndRender(); // one frame
 
-            imGuiGlfw.newFrame();
-            ImGui.newFrame();
+        //     imGuiGlfw.newFrame();
+        //     ImGui.newFrame();
 
-            hud.render();
+        //     hud.render();
 
-            ImGui.render();
-            imGuiGl3.renderDrawData(ImGui.getDrawData());
+        //     ImGui.render();
+        //     imGuiGl3.renderDrawData(ImGui.getDrawData());
 
             window.update(); // swap buffers + poll input
         }
